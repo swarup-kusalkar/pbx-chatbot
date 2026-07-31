@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PBX Support Chatbot</title>
+    <link rel="stylesheet" href="/static/style.css?v=3">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">PBX</div>
+                    <span>Assistant</span>
+                </div>
+            </div>
+
+            <div class="sidebar-tabs">
+                <button class="tab-btn active" data-tab="chats">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    Chats
+                </button>
+                <button class="tab-btn" data-tab="articles">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                    </svg>
+                    Articles
+                </button>
+            </div>
+
+            <!-- Chats Tab -->
+            <div class="tab-content active" id="tab-chats">
+                <div class="sessions-list" id="sessions-list"></div>
+            </div>
+
+            <!-- Articles Tab -->
+            <div class="tab-content" id="tab-articles">
+                <div class="articles-list" id="articles-list"></div>
+            </div>
+
+            <div class="sidebar-actions">
+                <button class="action-btn primary" id="new-chat-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    New Chat
+                </button>
+                <button class="action-btn" id="export-btn" title="Export chat as .txt">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Export
+                </button>
+                <button class="action-btn danger" id="clear-btn" title="Clear this chat">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                    Clear Chat
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Chat Area -->
+        <main class="main">
+            <!-- Welcome State -->
+            <div class="welcome-state" id="welcome-state">
+                <div class="welcome-content">
+                    <div class="welcome-icon">PBX</div>
+                    <h1>PBX Support Assistant</h1>
+                    <p>Ask me about IVR systems, SIP trunks, call queues, Asterisk, or any PBX and contact center technology.</p>
+                    <div class="quick-questions">
+                        <button class="quick-btn" data-question="What is IVR?">What is IVR?</button>
+                        <button class="quick-btn" data-question="How do SIP trunks work?">How do SIP trunks work?</button>
+                        <button class="quick-btn" data-question="What is Asterisk?">What is Asterisk?</button>
+                        <button class="quick-btn" data-question="What is ARI?">What is ARI?</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Area -->
+            <div class="chat-area" id="chat-area">
+                <div class="messages" id="messages"></div>
+            </div>
+
+            <!-- Thinking Indicator -->
+            <div class="thinking-indicator" id="thinking-indicator">
+                <div class="thinking-dots">
+                    <span></span><span></span><span></span>
+                </div>
+                <span class="thinking-text">Thinking...</span>
+            </div>
+
+            <!-- Input Area -->
+            <div class="input-area">
+                <div class="input-container">
+                    <textarea
+                        id="message-input"
+                        placeholder="Ask a PBX or contact center question..."
+                        rows="1"
+                        maxlength="2000"
+                    ></textarea>
+                    <div class="char-counter" id="char-counter">0/2000</div>
+                </div>
+                <button class="send-btn mic-btn" id="mic-btn" type="button" title="Click to speak">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="9" y="2" width="6" height="12" rx="3"></rect>
+                        <path d="M5 10a7 7 0 0 0 14 0"></path>
+                        <line x1="12" y1="19" x2="12" y2="22"></line>
+                        <line x1="9" y1="22" x2="15" y2="22"></line>
+                    </svg>
+                    <span class="mic-ripple"></span>
+                </button>
+                <button class="send-btn" id="send-btn" disabled type="button">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                </button>
+            </div>
+        </main>
+
+        <!-- Article Modal -->
+        <div class="modal-overlay" id="article-modal">
+            <div class="modal">
+                <div class="modal-header">
+                    <h2 id="modal-title">Article</h2>
+                    <button class="modal-close" id="modal-close">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="modal-body" id="modal-body"></div>
+                <div class="modal-footer">
+                    <button class="action-btn primary" id="ask-about-article">Ask about this article</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+    <script src="/static/app.js?v=3"></script>
+</body>
+</html>
