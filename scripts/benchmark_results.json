@@ -1,0 +1,42 @@
+{
+  "timestamp": "2026-08-14T15:27:42",
+  "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
+  "test_wav": "D:\\pbx-chatbot\\test_audio\\test_5s.wav",
+  "results": [
+    {
+      "ttft_ms": 9386,
+      "total_ms": 10110,
+      "heard_line": "[heard: What is DTMF?]",
+      "full_response": "[heard: What is DTMF?]\nDTMF is Dual-Tone Multi-Frequency, used for touch-tone signaling in VoIP. It lets users interact with IVR systems by pressing keys on their phone.\n</think>\n[heard: What is DTMF?]\nDTMF is Dual-Tone Multi-Frequency, used for touch-tone signaling in VoIP. It lets users interact with IVR systems by pressing keys on their phone."
+    },
+    {
+      "ttft_ms": 855,
+      "total_ms": 1504,
+      "heard_line": "[heard: What is DTMF?]",
+      "full_response": "[heard: What is DTMF?]\nDTMF is Dual-Tone Multi-Frequency used for touch-tone signaling in VoIP. It allows users to interact with IVR systems by pressing keys on their phone.\n</think>\n[heard: What is DTMF?]\nDTMF is Dual-Tone Multi-Frequency used for touch-tone signaling in VoIP. It allows users to interact with IVR systems by pressing keys on their phone."
+    },
+    {
+      "ttft_ms": 848,
+      "total_ms": 1147,
+      "heard_line": "[heard: Hello]",
+      "full_response": "[heard: Hello]\nI don't have that information in the knowledge base. Can you check the PBX manual or contact your administrator?\n</think>\n[heard: Hello]\nI don't have that information in the knowledge base. Can you check the PBX manual or contact your administrator?"
+    }
+  ],
+  "analysis": {
+    "runs": 3,
+    "ttft_ms": {
+      "min": 848,
+      "max": 9386,
+      "median": 855,
+      "p95": 9386,
+      "all": [
+        848,
+        855,
+        9386
+      ]
+    },
+    "heard_line_success_rate": "3/3",
+    "heard_line_works": true,
+    "primary_stack_recommendation": "fallback"
+  }
+}
