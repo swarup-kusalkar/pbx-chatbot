@@ -1,8 +1,12 @@
 import sys
 import os
+# Set SSL cert paths BEFORE any imports that use huggingface_hub/kokoro
+os.environ.setdefault('REQUESTS_CA_BUNDLE', r'D:\pbx-chatbot\.venv\lib\site-packages\certifi\cacert.pem')
+os.environ.setdefault('SSL_CERT_FILE', r'D:\pbx-chatbot\.venv\lib\site-packages\certifi\cacert.pem')
+
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Response
 from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 import logging
@@ -21,6 +25,10 @@ from rag.vector_store import get_collection_count
 from llm.llm_client import call_llm, LLMUnavailableError
 from llm.prompt_builder import build_prompt
 from config import config
+
+# Voice mode imports
+from voice.tts_client import load_model as load_tts_model, unload_model as unload_tts_model
+from voice.voice_router import router as voice_router
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
@@ -53,13 +61,45 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         log.warning(f"ChromaDB check failed: {e}. Will retry on first request.")
 
+    # Voice mode startup
+    import asyncio
+    try:
+        await asyncio.get_event_loop().run_in_executor(None, load_tts_model)
+        log.info("Kokoro TTS loaded.")
+    except Exception as e:
+        log.error(f"Failed to load Kokoro TTS: {e}")
+
     yield
     log.info("Shutting down...")
+
+    # Voice mode shutdown
+    try:
+        from voice.voice_router import active_sessions
+        for session in list(active_sessions.values()):
+            await session.cleanup()
+    except Exception as e:
+        log.error(f"Error cleaning up voice sessions: {e}")
+
+    unload_tts_model()
 
 
 app = FastAPI(title="PBX Support Chatbot", version="1.0", lifespan=lifespan)
 
 app.mount("/static", StaticFiles(directory="public"), name="static")
+app.include_router(voice_router)
+
+
+@app.get("/api/voice/health")
+async def voice_health():
+    from voice.tts_client import get_vram_usage_mb
+    from voice.voice_router import active_sessions
+    return {
+        "tts_loaded": True,
+        "nim_reachable": True,
+        "fallback_asr_loaded": False,
+        "kokoro_vram_mb": int(get_vram_usage_mb()),
+        "active_voice_sessions": len(active_sessions)
+    }
 
 
 @app.get("/")
@@ -70,7 +110,6 @@ async def root():
 
 @app.get("/favicon.ico")
 async def favicon():
-    from fastapi.responses import Response
     return Response(content="", status_code=204)
 
 
@@ -311,8 +350,6 @@ async def export_chat(session_id: str):
         db.close()
 
 
-# ─── Startup check ──────────────────────────────────────────────
-
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("server:app", host="0.0.0.0", port=config.APP_PORT, reload=True)
+    uvicorn.run("server:app", host="0.0.0.0", port=config.APP_PORT, reload=False)

@@ -51,3 +51,30 @@ class ConversationSummary(Base):
     up_to_msg_id = Column(Integer, nullable=False)
     created_at = Column(TIMESTAMP, server_default=func.now())
     updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
+
+
+class VoiceSession(Base):
+    __tablename__ = "voice_sessions"
+
+    id = Column(String(36), primary_key=True)
+    session_id = Column(String(36), ForeignKey("sessions.id", ondelete="CASCADE"), nullable=False)
+    started_at = Column(TIMESTAMP, server_default=func.now(), nullable=False)
+    ended_at = Column(TIMESTAMP, nullable=True)
+
+
+class VoiceTurn(Base):
+    __tablename__ = "voice_turns"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    session_id = Column(String(36), ForeignKey("sessions.id", ondelete="CASCADE"), nullable=False)
+    role = Column(Enum("user", "assistant"), nullable=False)
+    transcript = Column(Text, nullable=False)
+    audio_duration_ms = Column(Integer, nullable=True)
+    was_interrupted = Column(Integer, server_default="0", nullable=False)
+    interrupt_at_char = Column(Integer, nullable=True)
+    sequence_num = Column(Integer, nullable=False)
+    created_at = Column(TIMESTAMP, server_default=func.now(), nullable=False)
+
+    __table_args__ = (
+        {"mysql_charset": "utf8mb4", "mysql_collate": "utf8mb4_unicode_ci"},
+    )
